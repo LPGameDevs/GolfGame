@@ -14,6 +14,15 @@ namespace GolfGame
         public override void _Ready()
         {
             _gameManager.StartNewGame();
+
+            GameCore.Player[] players = new[]
+            {
+                new GameCore.Player(),
+                new GameCore.Player(),
+            };
+
+            _gameManager.SetPlayers(players);
+
         }
 
         public string GetCurrentState()

@@ -8,6 +8,7 @@ namespace GolfGame
     {
         private GameManager _gm;
 
+        private GameCore.Card _card;
 
         [Export] public Color SelectedColor { get; set; } = new Color(1, 0, 0);
 
@@ -27,8 +28,8 @@ namespace GolfGame
 
             _colorRect.SetSize(RectSize);
 
-            int newNumber = (int) GD.RandRange(1, 14);
-            UpdateNumber(newNumber);
+            // int newNumber = (int) GD.RandRange(1, 14);
+            // UpdateNumber(newNumber);
         }
 
         public void UpdateNumber(int number)
@@ -96,6 +97,12 @@ namespace GolfGame
         public override void _ExitTree()
         {
             ViewCards.OnExit -= OnExitViewCards;
+        }
+
+        public void SetCard(GameCore.Card card)
+        {
+            _card = card;
+            UpdateNumber(card.Number);
         }
     }
 }
