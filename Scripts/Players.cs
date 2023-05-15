@@ -30,7 +30,7 @@ public class Players : Node
             _player4,
         };
 
-        GameCore.Player[] corePlayers = GameCore.GameManager.Instance.GetPlayers();
+        GameCore.Players.Player[] corePlayers = GameCore.GameManager.Instance.GetPlayers();
         for (int i = 0; i < corePlayers.Length; i++)
         {
             _players[i].SetPlayer(corePlayers[i]);

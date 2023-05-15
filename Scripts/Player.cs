@@ -4,7 +4,7 @@ namespace GolfGame
 {
     public class Player : ColorRect
     {
-        private GameCore.Player _player;
+        private GameCore.Players.Player _player;
 
         private Card _card1, _card2, _card3, _card4;
         private Card[] _cards;
@@ -26,7 +26,7 @@ namespace GolfGame
         }
 
 
-        public void SetPlayer(GameCore.Player player)
+        public void SetPlayer(GameCore.Players.Player player)
         {
             _player = player;
             UpdateCards();

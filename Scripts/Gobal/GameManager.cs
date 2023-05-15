@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using GameCore;
+using GameCore.Players;
 using GameCore.States;
 using Godot;
 
@@ -14,15 +16,6 @@ namespace GolfGame
         public override void _Ready()
         {
             _gameManager.StartNewGame();
-
-            GameCore.Player[] players = new[]
-            {
-                new GameCore.Player(),
-                new GameCore.Player(),
-            };
-
-            _gameManager.SetPlayers(players);
-
         }
 
         public string GetCurrentState()
@@ -47,10 +40,8 @@ namespace GolfGame
 
         public override void _EnterTree()
         {
-            StateMachine stateMachine = new GolfStateMachine();
             _turnManager = TurnManager.Instance;
             _gameManager = GameCore.GameManager.Instance;
-            _gameManager.SetStateMachine(stateMachine);
 
             _gameManager.StartListening();
             _turnManager.StartListening();
@@ -61,6 +52,7 @@ namespace GolfGame
                 TurnManager.OnTransitionPlayerTurn += LogPlayerTransition;
             }
 
+            PlayerManager.OnFetchPlayers += FetchPlayers;
             Buttons.OnContinueButtonPressed += ButtonContinue;
         }
 
@@ -78,6 +70,7 @@ namespace GolfGame
                 TurnManager.OnTransitionPlayerTurn -= LogPlayerTransition;
             }
 
+            PlayerManager.OnFetchPlayers -= FetchPlayers;
             Buttons.OnContinueButtonPressed -= ButtonContinue;
         }
 
@@ -89,6 +82,14 @@ namespace GolfGame
         private static void LogPlayerTransition(PlayerId arg1, PlayerId arg2)
         {
             GD.Print($"Moving turn from {arg1.ToString()} to {arg2.ToString()}");
+        }
+
+        private static void FetchPlayers(List<GameCore.Players.Player> players)
+        {
+            IPlayerBrain brain1 = new AIBrain();
+            players.Add(new GameCore.Players.Player(brain1, PlayerId.Player1));
+            IPlayerBrain brain2 = new AIBrain();
+            players.Add(new GameCore.Players.Player(brain2, PlayerId.Player2));
         }
     }
 }
