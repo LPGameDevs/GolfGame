@@ -46,6 +46,13 @@ namespace GolfGame
             _gameManager.PlaceCard(card);
         }
 
+        public int GetHoldCard()
+        {
+            var currentPlayer = TurnManager.Instance.GetCurrentTurn();
+            GameCore.Players.Player player = _gameManager.GetPlayer(currentPlayer);
+            return player.GetHoldingCard();
+        }
+
         public void ButtonContinue()
         {
             if (GetCurrentState() == nameof(ViewCards))
