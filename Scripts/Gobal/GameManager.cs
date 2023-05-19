@@ -23,6 +23,29 @@ namespace GolfGame
             return _gameManager.GetCurrentState();
         }
 
+        private void ClickedDiscardDeck()
+        {
+            if (_gameManager.DrawCard(DeckType.Discard))
+            {
+                return;
+            }
+
+            _gameManager.DiscardCard();
+        }
+
+        private void ClickedDrawDeck()
+        {
+            if (!_gameManager.DrawCard(DeckType.Draw))
+            {
+                return;
+            }
+        }
+
+        public void PlaceCard(GameCore.Card card)
+        {
+            _gameManager.PlaceCard(card);
+        }
+
         public void ButtonContinue()
         {
             if (GetCurrentState() == nameof(ViewCards))
@@ -32,7 +55,12 @@ namespace GolfGame
             else if (GetCurrentState() == nameof(Waiting))
             {
                 // @fixme This should be replaced by multiplayer code.
-                _gameManager.StartNewTurn();
+                TurnManager.Instance.NextPlayerStartTurn();
+            }
+            else if (GetCurrentState() == nameof(CompleteTurn))
+            {
+                // @fixme This should be replaced by multiplayer code.
+                PlayerEvents.CompleteTurn();
             }
 
             GD.Print("Continue button pressed.");
@@ -54,6 +82,8 @@ namespace GolfGame
 
             PlayerManager.OnFetchPlayers += FetchPlayers;
             Buttons.OnContinueButtonPressed += ButtonContinue;
+            Deck.OnDeckClicked += ClickedDrawDeck;
+            Discard.OnDiscardClicked += ClickedDiscardDeck;
         }
 
         public override void _ExitTree()
@@ -72,6 +102,8 @@ namespace GolfGame
 
             PlayerManager.OnFetchPlayers -= FetchPlayers;
             Buttons.OnContinueButtonPressed -= ButtonContinue;
+            Deck.OnDeckClicked -= ClickedDrawDeck;
+            Discard.OnDiscardClicked -= ClickedDiscardDeck;
         }
 
         private static void LogStateTransition(string arg1, string arg2)

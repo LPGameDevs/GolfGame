@@ -1,8 +1,11 @@
+using System;
 using GameCore;
 using Godot;
 
 public class Discard : Control
 {
+    public static event Action OnDiscardClicked;
+
     private Label _number;
 
     public override void _Ready()
@@ -13,8 +16,20 @@ public class Discard : Control
 
     public void UpdateNumber()
     {
-        int number = DeckManager.Instance.GetDiscardTopCard();
-        _number.Text = number.ToString();
+        if (_number == null)
+        {
+            return;
+        }
+
+        try
+        {
+            int number = DeckManager.Instance.GetDiscardTopCard();
+            _number.Text = number.ToString();
+        }
+        catch (DrawFromEmptyDiscardException e)
+        {
+            _number.Text = "NA";
+        }
     }
 
     private void DrawNewCard()
@@ -24,13 +39,20 @@ public class Discard : Control
         UpdateNumber();
     }
 
+
+    public void _OnButtonDown()
+    {
+        OnDiscardClicked?.Invoke();
+        UpdateNumber();
+    }
+
     public override void _EnterTree()
     {
-        Deck.OnDeckClicked += DrawNewCard;
+        DeckManager.OnCardDiscarded += UpdateNumber;
     }
 
     public override void _ExitTree()
     {
-        Deck.OnDeckClicked -= DrawNewCard;
+        DeckManager.OnCardDiscarded -= UpdateNumber;
     }
 }

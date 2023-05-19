@@ -32,14 +32,16 @@ namespace GolfGame
             // UpdateNumber(newNumber);
         }
 
-        public void UpdateNumber(int number)
+        public void UpdateNumber()
         {
-            _number.Text = number.ToString();
+            _number.Text = _card.Number.ToString();
         }
 
         public void _OnButtonDown()
         {
-            ToggleActive();
+            _gm.PlaceCard(_card);
+            UpdateNumber();
+            // ToggleActive();
         }
 
         private void ToggleActive()
@@ -102,7 +104,7 @@ namespace GolfGame
         public void SetCard(GameCore.Card card)
         {
             _card = card;
-            UpdateNumber(card.Number);
+            UpdateNumber();
         }
     }
 }

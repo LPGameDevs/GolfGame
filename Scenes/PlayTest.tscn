@@ -99,4 +99,10 @@ margin_bottom = 25.0
 rect_min_size = Vector2( 100, 50 )
 text = "Continue"
 
+[node name="CurrentState" type="Label" parent="Buttons"]
+anchor_bottom = 1.0
+text = "CURRENT STATE"
+align = 1
+valign = 1
+
 [connection signal="button_down" from="Buttons/ContinueButton" to="Buttons" method="_OnContinueButtonDown"]
