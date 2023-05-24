@@ -1,3 +1,4 @@
+using GameCore;
 using Godot;
 
 namespace GolfGame
@@ -9,8 +10,13 @@ namespace GolfGame
         private Card _card1, _card2, _card3, _card4;
         private Card[] _cards;
 
+        private Color _inactiveColor;
+        private Color _activeColor = new Color(1, 0, 0);
+
         public override void _Ready()
         {
+            _inactiveColor = Color;
+
             _card1 = GetNode<Card>("MarginContainer/BoxContainer/Card1");
             _card2 = GetNode<Card>("MarginContainer/BoxContainer/Card2");
             _card3 = GetNode<Card>("MarginContainer/BoxContainer/Card3");
@@ -44,6 +50,52 @@ namespace GolfGame
         public GameCore.Card[] GetCards()
         {
             return _player.Cards;
+        }
+
+        private void OnNextPlayerTurn(PlayerId current, PlayerId next)
+        {
+            if (_player == null)
+            {
+                return;
+            }
+
+            if (current != _player.Id && next != _player.Id)
+            {
+                return;
+            }
+
+            if (current == _player.Id)
+            {
+                SetActive(false);
+                // _player.EndTurn();
+            }
+            else
+            {
+                SetActive(true);
+                // _player.StartTurn();
+            }
+        }
+
+        private void SetActive(bool isActive)
+        {
+            if (isActive)
+            {
+                Color = _activeColor;
+            }
+            else
+            {
+                Color = _inactiveColor;
+            }
+        }
+
+        public override void _EnterTree()
+        {
+            TurnManager.OnTransitionPlayerTurn += OnNextPlayerTurn;
+        }
+
+        public override void _ExitTree()
+        {
+            TurnManager.OnTransitionPlayerTurn -= OnNextPlayerTurn;
         }
     }
 }

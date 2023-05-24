@@ -22,29 +22,4 @@ public class Deck : Control
     {
         OnDeckClicked?.Invoke();
     }
-
-    public void UpdateHoldCard(bool isHolding)
-    {
-        if (isHolding)
-        {
-            int card = _gm.GetHoldCard();
-            _number.Text = card.ToString();
-            _number.Visible = true;
-
-        }
-        else
-        {
-            _number.Visible = false;
-        }
-    }
-
-    public override void _EnterTree()
-    {
-        GameCore.Players.Player.OnPlayerHoldCard += UpdateHoldCard;
-    }
-
-    public override void _ExitTree()
-    {
-        GameCore.Players.Player.OnPlayerHoldCard -= UpdateHoldCard;
-    }
 }
