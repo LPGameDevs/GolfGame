@@ -129,6 +129,10 @@ namespace GolfGame
             players.Add(new GameCore.Players.Player(brain1, PlayerId.Player1));
             IPlayerBrain brain2 = new AIBrain();
             players.Add(new GameCore.Players.Player(brain2, PlayerId.Player2));
+            IPlayerBrain brain3 = new AIBrain();
+            players.Add(new GameCore.Players.Player(brain3, PlayerId.Player3));
+            IPlayerBrain brain4 = new AIBrain();
+            players.Add(new GameCore.Players.Player(brain4, PlayerId.Player4));
         }
     }
 }

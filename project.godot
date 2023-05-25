@@ -17,6 +17,7 @@ config/icon="res://icon.png"
 [autoload]
 
 GameManager="*res://Scripts/Gobal/GameManager.cs"
+ScoreManager="*res://Scripts/Gobal/ScoreManager.cs"
 
 [gui]
 

@@ -7,6 +7,7 @@ namespace GolfGame
     {
         private GameCore.Players.Player _player;
 
+        private Score _playerScore;
         private Card _card1, _card2, _card3, _card4;
         private Card[] _cards;
 
@@ -16,6 +17,8 @@ namespace GolfGame
         public override void _Ready()
         {
             _inactiveColor = Color;
+
+            _playerScore = GetNode<Score>("Score");
 
             _card1 = GetNode<Card>("MarginContainer/BoxContainer/Card1");
             _card2 = GetNode<Card>("MarginContainer/BoxContainer/Card2");
@@ -35,6 +38,12 @@ namespace GolfGame
         public void SetPlayer(GameCore.Players.Player player)
         {
             _player = player;
+
+            if (_playerScore != null)
+            {
+                _playerScore.SetPlayer(player.Id);
+            }
+
             UpdateCards();
         }
 
