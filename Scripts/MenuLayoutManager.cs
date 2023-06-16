@@ -4,6 +4,8 @@ namespace GolfGame
 {
     public class MenuLayoutManager : Control
     {
+        LoadingManager _loadingManager;
+
         private Control _startButtons;
         private Control _friendsButtons;
         private Control _enterCode;
@@ -12,11 +14,13 @@ namespace GolfGame
 
         public override void _Ready()
         {
+            _loadingManager = GetNode<LoadingManager>("/root/LoadingManager");
+
             _startButtons = GetNode<Control>("StartButtons");
             _friendsButtons = GetNode<Control>("FriendsButtons");
             _enterCode = GetNode<Control>("EnterCode");
             _hosting = GetNode<Control>("Hosting");
-            ShowHomePanel();
+            CallDeferred(nameof(ShowHomePanel));
         }
 
         private void HideAll()
@@ -31,26 +35,37 @@ namespace GolfGame
         {
             HideAll();
             _startButtons.Visible = true;
+
+            LoadingDebug();
         }
 
         private void ShowFriendsPanel()
         {
             HideAll();
             _friendsButtons.Visible = true;
+
+            LoadingDebug();
         }
 
         private void ShowCodePanel()
         {
             HideAll();
             _enterCode.Visible = true;
+            LoadingDebug();
         }
 
         private void ShowHostingPanel()
         {
             HideAll();
             _hosting.Visible = true;
+            LoadingDebug();
         }
 
+
+        private void LoadingDebug()
+        {
+            _loadingManager.ShowLoadingTimed(0.5f);
+        }
 
         public void _OnBotsButtonDown()
         {
