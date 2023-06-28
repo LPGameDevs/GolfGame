@@ -174,7 +174,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0, 0, 0, 0.458824 )
 
-[node name="LineEdit" type="LineEdit" parent="MenuLayoutManager/Hosting"]
+[node name="Code" type="LineEdit" parent="MenuLayoutManager/Hosting"]
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -141.0
@@ -182,7 +182,7 @@ margin_top = 15.0
 margin_right = 141.0
 margin_bottom = 76.0
 custom_fonts/font = ExtResource( 4 )
-text = "YOUR CODE"
+text = "?????"
 align = 1
 editable = false
 placeholder_text = "ENTER CODE"

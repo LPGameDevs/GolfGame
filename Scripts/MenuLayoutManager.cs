@@ -5,22 +5,60 @@ namespace GolfGame
     public class MenuLayoutManager : Control
     {
         LoadingManager _loadingManager;
+        WebSocket _webSocket;
 
         private Control _startButtons;
         private Control _friendsButtons;
         private Control _enterCode;
         private Control _hosting;
+        private LineEdit _hostingCode;
 
 
         public override void _Ready()
         {
             _loadingManager = GetNode<LoadingManager>("/root/LoadingManager");
+            _webSocket = GetNode<WebSocket>("/root/WebSocket");
 
             _startButtons = GetNode<Control>("StartButtons");
             _friendsButtons = GetNode<Control>("FriendsButtons");
             _enterCode = GetNode<Control>("EnterCode");
             _hosting = GetNode<Control>("Hosting");
+            _hostingCode = _hosting.GetNode<LineEdit>("Code");
             CallDeferred(nameof(ShowHomePanel));
+        }
+
+        private void HostNewGame()
+        {
+            // Webhook send new game request.
+            LoadingStart();
+
+            _webSocket.MakeRequest(WebSocketRequestType.HostNewGame);
+        }
+
+        private void HostNewGame_Response(string code = null)
+        {
+            if (code == null)
+            {
+                // @todo Show server error.
+                GD.PrintErr("No code received from server.");
+                LoadingComplete();
+                return;
+            }
+
+            _hostingCode.Text = code;
+            _hosting.Visible = true;
+            LoadingComplete();
+            return;
+        }
+
+        private void LoadingStart()
+        {
+            _loadingManager.ShowLoading();
+        }
+
+        private void LoadingComplete()
+        {
+            _loadingManager.HideLoading();
         }
 
         private void HideAll()
@@ -57,8 +95,7 @@ namespace GolfGame
         private void ShowHostingPanel()
         {
             HideAll();
-            _hosting.Visible = true;
-            LoadingDebug();
+            HostNewGame();
         }
 
 
@@ -102,5 +139,25 @@ namespace GolfGame
             ShowFriendsPanel();
         }
 
+        private void EvaluateWebsocketResponses(WebSocket.WebSocketResponse response)
+        {
+            switch (response.RequestType)
+            {
+                case WebSocketRequestType.HostNewGame:
+                    HostNewGame_Response(response.data);
+                    break;
+            }
+        }
+
+        public override void _EnterTree()
+        {
+            WebSocket.OnResponseReceived += EvaluateWebsocketResponses;
+        }
+
+        public override void _ExitTree()
+        {
+            WebSocket.OnResponseReceived -= EvaluateWebsocketResponses;
+
+        }
     }
 }

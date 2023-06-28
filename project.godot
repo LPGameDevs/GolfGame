@@ -11,7 +11,7 @@ config_version=4
 [application]
 
 config/name="GolfGame"
-run/main_scene="res://Scenes/PlayTest.tscn"
+run/main_scene="res://Menu.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -19,6 +19,7 @@ config/icon="res://icon.png"
 GameManager="*res://Scripts/Gobal/GameManager.cs"
 ScoreManager="*res://Scripts/Gobal/ScoreManager.cs"
 LoadingManager="*res://Scripts/Gobal/LoadingManager.cs"
+WebSocket="*res://Scripts/Gobal/WebSocket.cs"
 
 [gui]
 
