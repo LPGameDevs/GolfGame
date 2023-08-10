@@ -5,6 +5,7 @@ namespace GolfGame
     public class MenuLayoutManager : Control
     {
         LoadingManager _loadingManager;
+        GameManager _gameManager;
         WebSocket _webSocket;
 
         private Control _startButtons;
@@ -18,6 +19,7 @@ namespace GolfGame
         {
             _loadingManager = GetNode<LoadingManager>("/root/LoadingManager");
             _webSocket = GetNode<WebSocket>("/root/WebSocket");
+            _gameManager = GetNode<GameManager>("/root/GameManager");
 
             _startButtons = GetNode<Control>("StartButtons");
             _friendsButtons = GetNode<Control>("FriendsButtons");
@@ -35,6 +37,13 @@ namespace GolfGame
             _webSocket.MakeRequest(WebSocketRequestType.HostNewGame);
         }
 
+        private void LeaveHostGame()
+        {
+            LoadingStart();
+            string code = _gameManager.CurrentRoom;
+            _webSocket.MakeRequest(WebSocketRequestType.LeaveGame, code);
+        }
+
         private void HostNewGame_Response(string code = null)
         {
             if (code == null)
@@ -45,10 +54,17 @@ namespace GolfGame
                 return;
             }
 
+            _gameManager.JoinRoom(code);
+
             _hostingCode.Text = code;
             _hosting.Visible = true;
             LoadingComplete();
-            return;
+        }
+
+        private void LeaveHostGame_Response()
+        {
+            _gameManager.LeaveRoom();
+            LoadingComplete();
         }
 
         private void LoadingStart()
@@ -104,47 +120,61 @@ namespace GolfGame
             _loadingManager.ShowLoadingTimed(0.5f);
         }
 
-        public void _OnBotsButtonDown()
+        public void _OnButtonDown_Start_Bots()
         {
             ShowFriendsPanel();
         }
 
-        public void _OnFriendsButtonDown()
+        public void _OnButtonDown_Start_Friends()
         {
             ShowFriendsPanel();
         }
 
-        public void _OnFriendsBackButtonDown()
-        {
-            ShowHomePanel();
-        }
-
-        public void _OnJoinGameButtonDown()
+        public void _OnButtonDown_Friends_Join()
         {
             ShowCodePanel();
         }
 
-        public void _OnJoinGameBackButtonDown()
-        {
-            ShowFriendsPanel();
-        }
-
-        public void _OnHostGameButtonDown()
+        public void _OnButtonDown_Friends_Host()
         {
             ShowHostingPanel();
         }
 
-        public void _OnHostGameBackButtonDown()
+        public void _OnButtonDown_Friends_Back()
         {
+            ShowHomePanel();
+        }
+
+        public void _OnButtonDown_Join_Start()
+        {
+            GD.Print("Join game.");
+        }
+
+        public void _OnButtonDown_Join_Back()
+        {
+            ShowFriendsPanel();
+        }
+
+        public void _OnButtonDown_Host_Start()
+        {
+            GD.Print("Start game.");
+        }
+
+        public void _OnButtonDown_Host_Back()
+        {
+            LeaveHostGame();
             ShowFriendsPanel();
         }
 
         private void EvaluateWebsocketResponses(WebSocket.WebSocketResponse response)
         {
-            switch (response.RequestType)
+            switch (response.responseType)
             {
-                case WebSocketRequestType.HostNewGame:
+                case WebSocketResponseType.UserJoinedRoom:
                     HostNewGame_Response(response.data);
+                    break;
+                case WebSocketResponseType.UserLeftRoom:
+                    LeaveHostGame_Response();
                     break;
             }
         }

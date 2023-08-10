@@ -268,10 +268,12 @@ margin_right = -14.0
 margin_bottom = 24.0
 text = "Disconnected"
 
-[connection signal="button_down" from="MenuLayoutManager/StartButtons/HBoxContainer/Bots" to="MenuLayoutManager" method="_OnBotsButtonDown"]
-[connection signal="button_down" from="MenuLayoutManager/StartButtons/HBoxContainer/Friends" to="MenuLayoutManager" method="_OnFriendsButtonDown"]
-[connection signal="button_down" from="MenuLayoutManager/FriendsButtons/HBoxContainer/Join" to="MenuLayoutManager" method="_OnJoinGameButtonDown"]
-[connection signal="button_down" from="MenuLayoutManager/FriendsButtons/HBoxContainer/Host" to="MenuLayoutManager" method="_OnHostGameButtonDown"]
-[connection signal="button_down" from="MenuLayoutManager/FriendsButtons/HBoxContainer/Back" to="MenuLayoutManager" method="_OnFriendsBackButtonDown"]
-[connection signal="button_down" from="MenuLayoutManager/EnterCode/HBoxContainer/BackButton" to="MenuLayoutManager" method="_OnJoinGameBackButtonDown"]
-[connection signal="button_down" from="MenuLayoutManager/Hosting/HBoxContainer/BackButton" to="MenuLayoutManager" method="_OnHostGameBackButtonDown"]
+[connection signal="button_down" from="MenuLayoutManager/StartButtons/HBoxContainer/Bots" to="MenuLayoutManager" method="_OnButtonDown_Start_Bots"]
+[connection signal="button_down" from="MenuLayoutManager/StartButtons/HBoxContainer/Friends" to="MenuLayoutManager" method="_OnButtonDown_Start_Friends"]
+[connection signal="button_down" from="MenuLayoutManager/FriendsButtons/HBoxContainer/Join" to="MenuLayoutManager" method="_OnButtonDown_Friends_Join"]
+[connection signal="button_down" from="MenuLayoutManager/FriendsButtons/HBoxContainer/Host" to="MenuLayoutManager" method="_OnButtonDown_Friends_Host"]
+[connection signal="button_down" from="MenuLayoutManager/FriendsButtons/HBoxContainer/Back" to="MenuLayoutManager" method="_OnButtonDown_Friends_Back"]
+[connection signal="button_down" from="MenuLayoutManager/EnterCode/HBoxContainer/JoinButton" to="MenuLayoutManager" method="_OnButtonDown_Join_Start"]
+[connection signal="button_down" from="MenuLayoutManager/EnterCode/HBoxContainer/BackButton" to="MenuLayoutManager" method="_OnButtonDown_Join_Back"]
+[connection signal="button_down" from="MenuLayoutManager/Hosting/HBoxContainer/JoinButton" to="MenuLayoutManager" method="_OnButtonDown_Host_Start"]
+[connection signal="button_down" from="MenuLayoutManager/Hosting/HBoxContainer/BackButton" to="MenuLayoutManager" method="_OnButtonDown_Host_Back"]

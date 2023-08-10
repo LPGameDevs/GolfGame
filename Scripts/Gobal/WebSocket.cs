@@ -6,7 +6,17 @@ namespace GolfGame
 {
     public enum WebSocketRequestType
     {
-        HostNewGame = 1
+        HostNewGame = 1,
+        JoinGame = 2,
+        LeaveGame = 3
+    }
+
+    public enum WebSocketResponseType
+    {
+        UserConnected = 1,
+        UserDisconnected = 2,
+        UserJoinedRoom = 3,
+        UserLeftRoom = 4,
     }
 
     public class WebSocket : Node
@@ -184,9 +194,9 @@ namespace GolfGame
 
         #region RequestTypes
 
-        public void MakeRequest(WebSocketRequestType type)
+        public void MakeRequest(WebSocketRequestType type, string data = "")
         {
-            RequestData requestData = new RequestData(type);
+            RequestData requestData = new RequestData(type, data);
             SendMessage(requestData);
         }
 
@@ -200,29 +210,40 @@ namespace GolfGame
             public string message;
             public string user;
             public string data;
-            public WebSocketRequestType RequestType;
+            public WebSocketResponseType responseType;
         }
 
         [Serializable]
-        public class RequestData
+        public class RequestData : IWebSockectRequestData
         {
             public string action = "notify";
+            public string room;
             public string person;
             public WebSocketRequestType RequestType;
 
-            public RequestData(WebSocketRequestType type, string person = "")
+            public RequestData(WebSocketRequestType type, string data = "")
             {
                 RequestType = type;
-                setActionFromType(type);
+                SetActionFromType(type, data);
                 this.person = person;
             }
 
-            private void setActionFromType(WebSocketRequestType type)
+            private void SetActionFromType(WebSocketRequestType type, string data = "")
             {
                 switch (type)
                 {
                     case WebSocketRequestType.HostNewGame:
                         action = "host";
+                        break;
+
+                    case WebSocketRequestType.JoinGame:
+                        action = "join-room";
+                        room = data;
+                        break;
+
+                    case WebSocketRequestType.LeaveGame:
+                        action = "leave-room";
+                        room = data;
                         break;
 
                     default:
@@ -233,5 +254,9 @@ namespace GolfGame
         }
 
         #endregion
+    }
+
+    public interface IWebSockectRequestData
+    {
     }
 }

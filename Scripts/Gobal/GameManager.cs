@@ -134,5 +134,21 @@ namespace GolfGame
             IPlayerBrain brain4 = new AIBrain();
             players.Add(new GameCore.Players.Player(brain4, PlayerId.Player4));
         }
+
+        #region RoomStuff
+
+        public string CurrentRoom = null;
+
+        public void JoinRoom(string roomName)
+        {
+            CurrentRoom = roomName;
+        }
+
+        public void LeaveRoom()
+        {
+            CurrentRoom = null;
+        }
+
+        #endregion
     }
 }
