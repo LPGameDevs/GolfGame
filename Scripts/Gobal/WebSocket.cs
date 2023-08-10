@@ -11,23 +11,25 @@ namespace GolfGame
 
     public class WebSocket : Node
     {
+        private const bool _secureConnection = false;
+
+        public static event Action OnConnected;
+        public static event Action OnDisconnected;
         public static event Action<WebSocketResponse> OnResponseReceived;
 
         private WebSocketClient _webSocketClient = null;
-        private const string WebSocketUrl = "wss://5kh2nhf5ql.execute-api.eu-north-1.amazonaws.com/production";
+        private float _pollTime = 1f;
+        private float _pollTimer = 0;
 
+        private int _reconnectionAttempts = 5;
+        private int _currentReconnectionAttempt = 0;
+        private float _reconnectionTime = 3f;
+        private float _reconnectionTimer = 0;
 
-        public override void _Ready()
-        {
-            SetupServer();
-        }
+        // private const string WebSocketUrl = "wss://5kh2nhf5ql.execute-api.eu-north-1.amazonaws.com/production";
+        private const string WebSocketUrl = "ws://localhost:1337";
 
-        public override void _Process(float delta)
-        {
-            PollServer();
-        }
-
-        private void SetupServer()
+        private void ConnectToServer()
         {
             // Connect signal events.
             _webSocketClient = new WebSocketClient();
@@ -37,9 +39,12 @@ namespace GolfGame
             _webSocketClient.Connect("connection_closed", this, nameof(OnConnectionClosed));
             _webSocketClient.Connect("connection_error", this, nameof(OnConnectionError));
 
-            // Additional security precautions.
-            // String[] supportedProtocols = new string[1] {"some-protocol"};
             string[] supportedProtocols = null;
+            if (_secureConnection)
+            {
+                // Additional security precautions.
+                supportedProtocols = new string[1] {"some-protocol"};
+            }
 
             Error error = _webSocketClient.ConnectToUrl(WebSocketUrl, supportedProtocols);
 
@@ -56,24 +61,84 @@ namespace GolfGame
             }
         }
 
-        private void PollServer()
+        private void HandlePolling()
         {
-            if (_webSocketClient.GetConnectionStatus() == NetworkedMultiplayerPeer.ConnectionStatus.Connected ||
-                _webSocketClient.GetConnectionStatus() == NetworkedMultiplayerPeer.ConnectionStatus.Connecting)
+            if (_webSocketClient.GetConnectionStatus() == NetworkedMultiplayerPeer.ConnectionStatus.Disconnected)
             {
-                _webSocketClient.Poll();
+                return;
+            }
+
+            _webSocketClient.Poll();
+        }
+
+        private void HandleReconnection()
+        {
+            if (_webSocketClient.GetConnectionStatus() != NetworkedMultiplayerPeer.ConnectionStatus.Disconnected)
+            {
+                return;
+            }
+
+            if (_reconnectionTimer > _reconnectionTime)
+            {
+                _reconnectionTimer = 0;
+                AttemptReconnection();
+            }
+
+
+            void AttemptReconnection()
+            {
+                _currentReconnectionAttempt++;
+                if (_currentReconnectionAttempt > _reconnectionAttempts)
+                {
+                    GD.Print("Max reconnection attempts reached.");
+                    return;
+                }
+
+                GD.Print("Attempting reconnection. Attempt: " + _currentReconnectionAttempt.ToString());
+                ConnectToServer();
             }
         }
 
+        public void SendMessage(RequestData requestData)
+        {
+            string json = JsonConvert.SerializeObject(requestData);
+            Error error = _webSocketClient.GetPeer(1).PutPacket(json.ToUTF8());
+
+            if (!error.Equals(Error.Ok))
+            {
+                GD.Print("Error sending message to server.");
+            }
+        }
+
+        #region WebSocketEvents
 
         public void OnConnectionEstablished(string protocol)
         {
             GD.Print("Connection established.");
+            _currentReconnectionAttempt = 0;
+            OnConnected?.Invoke();
+        }
+
+        public void OnServerCloseRequest(int code, string reason)
+        {
+            GD.Print("Close request, reason: " + reason + ", code: " + code.ToString());
+        }
+
+        public void OnConnectionClosed(bool wasCleanClose)
+        {
+            GD.Print("Connection closed. was clean close." + wasCleanClose.ToString());
+            OnDisconnected?.Invoke();
+        }
+
+        public void OnConnectionError()
+        {
+            GD.Print("Connection error.");
         }
 
         public void OnDataReceived()
         {
-            GD.Print("data received");
+            var packetCount = _webSocketClient.GetPeer(1).GetAvailablePacketCount();
+            GD.Print("data received. " + packetCount.ToString() + " packets.");
 
             // Example only: Handle reciving text from server.
             var packet = _webSocketClient.GetPeer(1).GetPacket();
@@ -93,31 +158,29 @@ namespace GolfGame
             }
         }
 
-        public void OnServerCloseRequest(int code, string reason)
+        #endregion
+
+        #region GodotHooks
+
+        public override void _Ready()
         {
-            GD.Print("Close request, reason: " + reason + ", code: " + code.ToString());
+            ConnectToServer();
         }
 
-        public void OnConnectionClosed(bool wasCleanClose)
+        public override void _Process(float delta)
         {
-            GD.Print("Connection closed. was clean close." + wasCleanClose.ToString());
-        }
+            _pollTimer += delta;
+            _reconnectionTimer += delta;
 
-        public void OnConnectionError()
-        {
-            GD.Print("Connection error.");
-        }
-
-        public void SendMessage(RequestData requestData)
-        {
-            string json = JsonConvert.SerializeObject(requestData);
-            Error error = _webSocketClient.GetPeer(1).PutPacket(json.ToUTF8());
-
-            if (!error.Equals(Error.Ok))
+            if (_pollTimer > _pollTime)
             {
-                GD.Print("Error sending message to server.");
+                _pollTimer = 0;
+                HandlePolling();
+                HandleReconnection();
             }
         }
+
+        #endregion
 
         #region RequestTypes
 
