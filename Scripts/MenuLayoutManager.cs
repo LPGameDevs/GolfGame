@@ -1,4 +1,5 @@
 using Godot;
+using GolfGame.Helpers;
 
 namespace GolfGame
 {
@@ -8,74 +9,81 @@ namespace GolfGame
         GameManager _gameManager;
         WebSocket _webSocket;
 
+        WebSocketEventHandler _eventHandler;
+        WebSocketRequestHandler _requestHandler;
+
         private Control _startButtons;
         private Control _friendsButtons;
         private Control _enterCode;
+        private LineEdit _enterCodeInput;
         private Control _hosting;
         private LineEdit _hostingCode;
+        private Label _playersJoinedTemplate;
 
+        // Create timer to cancel requests that take too long.
+        private bool _requestInProgress = false;
+        private float _requestTimeout = 5;
+        private float _requestTimeoutTimer = 0;
 
-        public override void _Ready()
-        {
-            _loadingManager = GetNode<LoadingManager>("/root/LoadingManager");
-            _webSocket = GetNode<WebSocket>("/root/WebSocket");
-            _gameManager = GetNode<GameManager>("/root/GameManager");
-
-            _startButtons = GetNode<Control>("StartButtons");
-            _friendsButtons = GetNode<Control>("FriendsButtons");
-            _enterCode = GetNode<Control>("EnterCode");
-            _hosting = GetNode<Control>("Hosting");
-            _hostingCode = _hosting.GetNode<LineEdit>("Code");
-            CallDeferred(nameof(ShowHomePanel));
-        }
+        #region RequestTriggers
 
         private void HostNewGame()
         {
             // Webhook send new game request.
             LoadingStart();
+            _requestHandler.HostGame();
+        }
 
-            _webSocket.MakeRequest(WebSocketRequestType.HostNewGame);
+        private void JoinHostGame()
+        {
+            LoadingStart();
+            var code = _enterCodeInput.Text;
+            _requestHandler.JoinGame(code);
         }
 
         private void LeaveHostGame()
         {
             LoadingStart();
             string code = _gameManager.CurrentRoom;
-            _webSocket.MakeRequest(WebSocketRequestType.LeaveGame, code);
+            _requestHandler.LeaveGame(code);
         }
 
-        private void HostNewGame_Response(string code = null)
-        {
-            if (code == null)
-            {
-                // @todo Show server error.
-                GD.PrintErr("No code received from server.");
-                LoadingComplete();
-                return;
-            }
+        #endregion
 
-            _gameManager.JoinRoom(code);
+        #region RequestResponses
+
+        public void JoinGameSuccess(string code, string[] users)
+        {
+            HideAll();
 
             _hostingCode.Text = code;
             _hosting.Visible = true;
+
+            _playersJoinedTemplate.Visible = true;
+            _playersJoinedTemplate.Text = "Players joined: " + string.Join(", ", users);
             LoadingComplete();
         }
 
-        private void LeaveHostGame_Response()
+        public void JoinGameFailure()
         {
-            _gameManager.LeaveRoom();
+            // @todo Nothing calls this. Maybe add a request timeout?
+            ShowFriendsPanel();
+        }
+
+        public void LeaveGameSuccess()
+        {
+            HideAll();
+
+            ShowFriendsPanel();
+        }
+
+        public void LeaveGameFailure()
+        {
+            // @todo Nothing calls this. Maybe add a request timeout?
             LoadingComplete();
         }
 
-        private void LoadingStart()
-        {
-            _loadingManager.ShowLoading();
-        }
-
-        private void LoadingComplete()
-        {
-            _loadingManager.HideLoading();
-        }
+        #endregion
 
         private void HideAll()
         {
@@ -110,15 +118,33 @@ namespace GolfGame
 
         private void ShowHostingPanel()
         {
-            HideAll();
             HostNewGame();
         }
 
+        private void JoinHostingPanel()
+        {
+            JoinHostGame();
+        }
+
+        private void LoadingStart()
+        {
+            _requestInProgress = true;
+            _loadingManager.ShowLoading();
+        }
+
+        private void LoadingComplete()
+        {
+            _requestTimeoutTimer = 0;
+            _requestInProgress = false;
+            _loadingManager.HideLoading();
+        }
 
         private void LoadingDebug()
         {
-            _loadingManager.ShowLoadingTimed(0.5f);
+            _loadingManager.ShowLoadingTimed(0.25f);
         }
+
+        #region ButtonEvents
 
         public void _OnButtonDown_Start_Bots()
         {
@@ -147,6 +173,7 @@ namespace GolfGame
 
         public void _OnButtonDown_Join_Start()
         {
+            JoinHostingPanel();
             GD.Print("Join game.");
         }
 
@@ -163,20 +190,55 @@ namespace GolfGame
         public void _OnButtonDown_Host_Back()
         {
             LeaveHostGame();
-            ShowFriendsPanel();
         }
+
+        #endregion
 
         private void EvaluateWebsocketResponses(WebSocket.WebSocketResponse response)
         {
-            switch (response.responseType)
+            // If we have timed out, don't handle the response.
+            // This is a sticky plaster solution to a problem that should be solved elsewhere. Disable during
+            // development to catch bugs in the websocket response handler.
+            // if (!_requestInProgress) return;
+            _eventHandler.HandleResponse(response);
+        }
+
+        private void HandleRequestTimeout(float delta)
+        {
+            if (!_requestInProgress) return;
+
+            _requestTimeoutTimer += delta;
+            if (_requestTimeoutTimer >= _requestTimeout)
             {
-                case WebSocketResponseType.UserJoinedRoom:
-                    HostNewGame_Response(response.data);
-                    break;
-                case WebSocketResponseType.UserLeftRoom:
-                    LeaveHostGame_Response();
-                    break;
+                LoadingComplete();
+                // @todo Show error message.
             }
+        }
+
+        #region GodotHooks
+
+        public override void _Ready()
+        {
+            _loadingManager = GetNode<LoadingManager>("/root/LoadingManager");
+            _webSocket = GetNode<WebSocket>("/root/WebSocket");
+            _gameManager = GetNode<GameManager>("/root/GameManager");
+
+            _startButtons = GetNode<Control>("StartButtons");
+            _friendsButtons = GetNode<Control>("FriendsButtons");
+            _enterCode = GetNode<Control>("EnterCode");
+            _enterCodeInput = GetNode<LineEdit>("EnterCode/LineEdit");
+            _hosting = GetNode<Control>("Hosting");
+            _hostingCode = _hosting.GetNode<LineEdit>("Code");
+            _playersJoinedTemplate = GetNode<Label>("Hosting/_PlayersJoined/_PlayerTemplate");
+            CallDeferred(nameof(ShowHomePanel));
+
+            _eventHandler = new WebSocketEventHandler(this, _gameManager, _loadingManager, _webSocket);
+            _requestHandler = new WebSocketRequestHandler(this, _gameManager, _loadingManager, _webSocket);
+        }
+
+        public override void _Process(float delta)
+        {
+            HandleRequestTimeout(delta);
         }
 
         public override void _EnterTree()
@@ -187,7 +249,9 @@ namespace GolfGame
         public override void _ExitTree()
         {
             WebSocket.OnResponseReceived -= EvaluateWebsocketResponses;
-
         }
+
+        #endregion
+
     }
 }

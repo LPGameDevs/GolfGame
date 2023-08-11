@@ -200,7 +200,7 @@ margin_bottom = 6.5
 custom_fonts/font = ExtResource( 5 )
 text = "Players Joined"
 
-[node name="PlayersJoined" type="HBoxContainer" parent="MenuLayoutManager/Hosting"]
+[node name="_PlayersJoined" type="HBoxContainer" parent="MenuLayoutManager/Hosting"]
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
@@ -209,26 +209,13 @@ margin_bottom = 39.0
 custom_constants/separation = 15
 alignment = 1
 
-[node name="PlayerJoined1" type="Label" parent="MenuLayoutManager/Hosting/PlayersJoined"]
-margin_left = 148.0
-margin_right = 268.0
-margin_bottom = 25.0
-custom_fonts/font = ExtResource( 5 )
-text = "Player 1"
-
-[node name="PlayerJoined2" type="Label" parent="MenuLayoutManager/Hosting/PlayersJoined"]
+[node name="_PlayerTemplate" type="Label" parent="MenuLayoutManager/Hosting/_PlayersJoined"]
+visible = false
 margin_left = 283.0
 margin_right = 403.0
 margin_bottom = 25.0
 custom_fonts/font = ExtResource( 5 )
-text = "Player 2"
-
-[node name="PlayerJoined3" type="Label" parent="MenuLayoutManager/Hosting/PlayersJoined"]
-margin_left = 418.0
-margin_right = 538.0
-margin_bottom = 25.0
-custom_fonts/font = ExtResource( 5 )
-text = "Player 3"
+text = "Player 1"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MenuLayoutManager/Hosting"]
 anchor_top = 1.0
@@ -262,11 +249,17 @@ script = ExtResource( 7 )
 [node name="_StatusLabel" type="Label" parent="WSStatus"]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -102.0
-margin_top = 10.0
-margin_right = -14.0
-margin_bottom = 24.0
+margin_left = -88.0
+margin_bottom = 14.0
 text = "Disconnected"
+
+[node name="_UidLabel" type="Label" parent="WSStatus"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -280.0
+margin_top = -14.0
 
 [connection signal="button_down" from="MenuLayoutManager/StartButtons/HBoxContainer/Bots" to="MenuLayoutManager" method="_OnButtonDown_Start_Bots"]
 [connection signal="button_down" from="MenuLayoutManager/StartButtons/HBoxContainer/Friends" to="MenuLayoutManager" method="_OnButtonDown_Start_Friends"]

@@ -137,6 +137,7 @@ namespace GolfGame
 
         #region RoomStuff
 
+        public string CurrentUser = null;
         public string CurrentRoom = null;
 
         public void JoinRoom(string roomName)

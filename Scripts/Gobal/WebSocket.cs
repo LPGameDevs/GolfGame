@@ -13,10 +13,15 @@ namespace GolfGame
 
     public enum WebSocketResponseType
     {
+        UserHandshake = 0,
         UserConnected = 1,
         UserDisconnected = 2,
         UserJoinedRoom = 3,
         UserLeftRoom = 4,
+        CardPicked = 6,
+        CardPlaced = 7,
+        PlayerKnocked = 8,
+        InteractionError = 9
     }
 
     public class WebSocket : Node
@@ -31,13 +36,16 @@ namespace GolfGame
         private float _pollTime = 1f;
         private float _pollTimer = 0;
 
-        private int _reconnectionAttempts = 5;
+        private bool _isConnected = false;
+        private int _maxReconnectionAttempts = 99;
         private int _currentReconnectionAttempt = 0;
         private float _reconnectionTime = 3f;
         private float _reconnectionTimer = 0;
 
         // private const string WebSocketUrl = "wss://5kh2nhf5ql.execute-api.eu-north-1.amazonaws.com/production";
         private const string WebSocketUrl = "ws://localhost:1337";
+
+        public bool IsClientConnected => _isConnected;
 
         private void ConnectToServer()
         {
@@ -98,7 +106,7 @@ namespace GolfGame
             void AttemptReconnection()
             {
                 _currentReconnectionAttempt++;
-                if (_currentReconnectionAttempt > _reconnectionAttempts)
+                if (_currentReconnectionAttempt > _maxReconnectionAttempts)
                 {
                     GD.Print("Max reconnection attempts reached.");
                     return;
@@ -111,6 +119,12 @@ namespace GolfGame
 
         public void SendMessage(RequestData requestData)
         {
+
+            if (!_isConnected)
+            {
+                return;
+            }
+
             string json = JsonConvert.SerializeObject(requestData);
             Error error = _webSocketClient.GetPeer(1).PutPacket(json.ToUTF8());
 
@@ -126,7 +140,7 @@ namespace GolfGame
         {
             GD.Print("Connection established.");
             _currentReconnectionAttempt = 0;
-            OnConnected?.Invoke();
+            _isConnected = true;
         }
 
         public void OnServerCloseRequest(int code, string reason)
@@ -137,6 +151,7 @@ namespace GolfGame
         public void OnConnectionClosed(bool wasCleanClose)
         {
             GD.Print("Connection closed. was clean close." + wasCleanClose.ToString());
+            _isConnected = false;
             OnDisconnected?.Invoke();
         }
 
@@ -209,7 +224,9 @@ namespace GolfGame
         {
             public string message;
             public string user;
+            public string[] users;
             public string data;
+            public string room;
             public WebSocketResponseType responseType;
         }
 
@@ -254,6 +271,12 @@ namespace GolfGame
         }
 
         #endregion
+
+        // Handshake occurrs after connection but now we have the user id.
+        public void HandshakeSuccess()
+        {
+            OnConnected?.Invoke();
+        }
     }
 
     public interface IWebSockectRequestData
