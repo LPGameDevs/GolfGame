@@ -23,7 +23,7 @@ public class Discard : Control
 
         try
         {
-            int number = DeckManager.Instance.GetDiscardTopCard();
+            CardDto number = DeckManager.Instance.GetDiscardTopCard();
             _number.Text = number.ToString();
         }
         catch (DrawFromEmptyDiscardException e)
@@ -34,7 +34,7 @@ public class Discard : Control
 
     private void DrawNewCard()
     {
-        int newNumber = DeckManager.Instance.DrawCard();
+        CardDto newNumber = DeckManager.Instance.DrawCard();
         DeckManager.Instance.DiscardCard(newNumber);
         UpdateNumber();
     }

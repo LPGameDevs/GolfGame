@@ -11,11 +11,14 @@ namespace GolfGame
         GameCore.GameManager _coreGameManager = null;
         TurnManager _turnManager = null;
 
+        private GameState _gameState;
+
         private bool _debug = true;
 
-        public void StartNewGame()
+        public void StartNewGame(GameState gameState)
         {
-            _coreGameManager.StartNewGame();
+            _gameState = gameState;
+            _coreGameManager.StartNewGame(_gameState);
         }
 
         public string GetCurrentState()
@@ -46,7 +49,7 @@ namespace GolfGame
             _coreGameManager.PlaceCard(card);
         }
 
-        public int GetHoldCard()
+        public CardDto GetHoldCard()
         {
             var currentPlayer = TurnManager.Instance.GetCurrentTurn();
             GameCore.Players.Player player = _coreGameManager.GetPlayer(currentPlayer);
@@ -123,16 +126,16 @@ namespace GolfGame
             GD.Print($"Moving turn from {arg1.ToString()} to {arg2.ToString()}");
         }
 
-        private static void FetchPlayers(List<GameCore.Players.Player> players)
+        private void FetchPlayers(List<GameCore.Players.Player> players)
         {
-            IPlayerBrain brain1 = new AIBrain();
-            players.Add(new GameCore.Players.Player(brain1, PlayerId.Player1));
-            IPlayerBrain brain2 = new AIBrain();
-            players.Add(new GameCore.Players.Player(brain2, PlayerId.Player2));
-            IPlayerBrain brain3 = new AIBrain();
-            players.Add(new GameCore.Players.Player(brain3, PlayerId.Player3));
-            IPlayerBrain brain4 = new AIBrain();
-            players.Add(new GameCore.Players.Player(brain4, PlayerId.Player4));
+            int i = 1;
+            foreach (var user in _gameState.users)
+            {
+                IPlayerBrain brain = new AIBrain();
+                players.Add(new GameCore.Players.Player(brain, (PlayerId) i));
+
+                i++;
+            }
         }
 
         #region RoomStuff

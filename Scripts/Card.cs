@@ -34,7 +34,7 @@ namespace GolfGame
 
         public void UpdateNumber()
         {
-            _number.Text = _card.Number.ToString();
+            _number.Text = _card.CardData.CardName.ToString();
         }
 
         public void _OnButtonDown()

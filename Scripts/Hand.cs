@@ -1,4 +1,5 @@
 using System;
+using GameCore;
 using GameCore.Players;
 using Godot;
 
@@ -28,8 +29,8 @@ namespace GolfGame
 
             try
             {
-                int holdCard = _gm.GetHoldCard();
-                if (holdCard != -1)
+                CardDto holdCard = _gm.GetHoldCard();
+                if (holdCard.CardName != CardName.None)
                 {
                     _number.Text = holdCard.ToString();
                     return;

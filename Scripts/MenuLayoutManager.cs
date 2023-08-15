@@ -1,3 +1,4 @@
+using GameCore;
 using Godot;
 using GolfGame.Helpers;
 
@@ -261,9 +262,9 @@ namespace GolfGame
 
         #endregion
 
-        public void StartGameSuccess()
+        public void StartGameSuccess(GameState gameState)
         {
-            _gameManager.StartNewGame();
+            _gameManager.StartNewGame(gameState);
             GetTree().ChangeScene("res://Scenes/Game.tscn");
         }
     }

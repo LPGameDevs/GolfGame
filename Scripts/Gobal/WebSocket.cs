@@ -1,7 +1,6 @@
 using System;
+using GameCore;
 using Godot;
-using Godot.Collections;
-using GolfGame.Helpers;
 using Newtonsoft.Json;
 
 namespace GolfGame
@@ -289,15 +288,7 @@ namespace GolfGame
         }
     }
 
-    public class GameState
-    {
-        public string id;
-        public string[] users;
-        public CardDto[] deck;
-        public CardDto[] discard;
-        public Dictionary<string, CardDto[]> hands;
-        public int turn;
-    }
+
 
     public interface IWebSockectRequestData
     {
