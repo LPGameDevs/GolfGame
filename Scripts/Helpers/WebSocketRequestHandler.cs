@@ -28,6 +28,11 @@ namespace GolfGame.Helpers
             _webSocket.MakeRequest(WebSocketRequestType.HostNewGame);
         }
 
+        public void StartGame(string code)
+        {
+            _webSocket.MakeRequest(WebSocketRequestType.StartGame, code);
+        }
+
         public void JoinGame(string code)
         {
             _webSocket.MakeRequest(WebSocketRequestType.JoinGame, code);

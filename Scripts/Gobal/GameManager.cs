@@ -8,34 +8,34 @@ namespace GolfGame
 {
     public class GameManager : Node
     {
-        GameCore.GameManager _gameManager = null;
+        GameCore.GameManager _coreGameManager = null;
         TurnManager _turnManager = null;
 
         private bool _debug = true;
 
-        public override void _Ready()
+        public void StartNewGame()
         {
-            _gameManager.StartNewGame();
+            _coreGameManager.StartNewGame();
         }
 
         public string GetCurrentState()
         {
-            return _gameManager.GetCurrentState();
+            return _coreGameManager.GetCurrentState();
         }
 
         private void ClickedDiscardDeck()
         {
-            if (_gameManager.DrawCard(DeckType.Discard))
+            if (_coreGameManager.DrawCard(DeckType.Discard))
             {
                 return;
             }
 
-            _gameManager.DiscardCard();
+            _coreGameManager.DiscardCard();
         }
 
         private void ClickedDrawDeck()
         {
-            if (!_gameManager.DrawCard(DeckType.Draw))
+            if (!_coreGameManager.DrawCard(DeckType.Draw))
             {
                 return;
             }
@@ -43,13 +43,13 @@ namespace GolfGame
 
         public void PlaceCard(GameCore.Card card)
         {
-            _gameManager.PlaceCard(card);
+            _coreGameManager.PlaceCard(card);
         }
 
         public int GetHoldCard()
         {
             var currentPlayer = TurnManager.Instance.GetCurrentTurn();
-            GameCore.Players.Player player = _gameManager.GetPlayer(currentPlayer);
+            GameCore.Players.Player player = _coreGameManager.GetPlayer(currentPlayer);
             return player.GetHoldingCard();
         }
 
@@ -76,9 +76,9 @@ namespace GolfGame
         public override void _EnterTree()
         {
             _turnManager = TurnManager.Instance;
-            _gameManager = GameCore.GameManager.Instance;
+            _coreGameManager = GameCore.GameManager.Instance;
 
-            _gameManager.StartListening();
+            _coreGameManager.StartListening();
             _turnManager.StartListening();
 
             if (_debug)
@@ -95,8 +95,8 @@ namespace GolfGame
 
         public override void _ExitTree()
         {
-            _gameManager.StopListening();
-            _gameManager = null;
+            _coreGameManager.StopListening();
+            _coreGameManager = null;
 
             _turnManager.StopListening();
             _turnManager = null;

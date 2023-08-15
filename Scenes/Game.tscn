@@ -1,0 +1,114 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://Prefabs/Hand.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Prefabs/Discard.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Prefabs/Deck.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scripts/Buttons.cs" type="Script" id=4]
+[ext_resource path="res://Scripts/Players.cs" type="Script" id=5]
+[ext_resource path="res://Prefabs/PlayerHorizontal.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Prefabs/PlayerVertical.tscn" type="PackedScene" id=7]
+
+[node name="Mockup" type="Node"]
+
+[node name="Game" type="Control" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -415.0
+margin_top = -250.0
+margin_right = 415.0
+margin_bottom = 250.0
+
+[node name="Players" type="Node" parent="Game"]
+script = ExtResource( 5 )
+
+[node name="Player1" parent="Game/Players" instance=ExtResource( 6 )]
+
+[node name="Player2" parent="Game/Players" instance=ExtResource( 7 )]
+
+[node name="Player3" parent="Game/Players" instance=ExtResource( 6 )]
+anchor_top = 0.0
+anchor_bottom = 0.0
+margin_top = 50.0
+margin_bottom = 200.0
+color = Color( 0.576471, 0.619608, 0.278431, 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Player4" parent="Game/Players" instance=ExtResource( 7 )]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -247.0
+margin_right = -97.0
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Table" type="ColorRect" parent="Game"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -189.0
+margin_top = -75.0
+margin_right = 189.0
+margin_bottom = 75.0
+color = Color( 0.917647, 0.643137, 0.643137, 1 )
+
+[node name="MarginContainer" type="MarginContainer" parent="Game/Table"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_constants/margin_right = 15
+custom_constants/margin_top = 15
+custom_constants/margin_left = 15
+custom_constants/margin_bottom = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Game/Table/MarginContainer"]
+margin_left = 15.0
+margin_top = 15.0
+margin_right = 363.0
+margin_bottom = 135.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 15
+alignment = 1
+
+[node name="Discard" parent="Game/Table/MarginContainer/HBoxContainer" instance=ExtResource( 2 )]
+rect_min_size = Vector2( 106, 120 )
+
+[node name="Deck" parent="Game/Table/MarginContainer/HBoxContainer" instance=ExtResource( 3 )]
+margin_left = 121.0
+margin_right = 227.0
+
+[node name="Hand" parent="Game/Table/MarginContainer/HBoxContainer" instance=ExtResource( 1 )]
+margin_left = 242.0
+margin_right = 348.0
+
+[node name="Buttons" type="Control" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_vertical = 0
+rect_min_size = Vector2( 0, 50 )
+script = ExtResource( 4 )
+
+[node name="ContinueButton" type="Button" parent="Buttons"]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -100.0
+margin_top = -25.0
+margin_bottom = 25.0
+rect_min_size = Vector2( 100, 50 )
+text = "Continue"
+
+[node name="CurrentState" type="Label" parent="Buttons"]
+anchor_bottom = 1.0
+text = "CURRENT STATE"
+align = 1
+valign = 1
+
+[connection signal="button_down" from="Buttons/ContinueButton" to="Buttons" method="_OnContinueButtonDown"]

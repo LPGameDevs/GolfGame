@@ -2,6 +2,51 @@ using Godot;
 
 namespace GolfGame.Helpers
 {
+
+    public enum Suit {
+        Clubs = 0,
+        Spades = 1,
+        Diamonds = 2,
+        Hearts = 3
+    }
+
+    public enum CardName {
+        Ace = 0,
+        Two = 1,
+        Three = 2,
+        Four = 3,
+        Five = 4,
+        Six = 5,
+        Seven = 6,
+        Eight = 7,
+        Nine = 8,
+        Ten = 9,
+        Jack = 10,
+        Queen = 11,
+        King = 12,
+        Joker = 13
+    }
+    public class CardDto
+    {
+        public CardName CardName;
+        public Suit Suit;
+
+        public CardDto(CardName name, Suit suit)
+        {
+            CardName = name;
+            Suit = suit;
+        }
+    }
+
+    public class HandDto
+    {
+        public CardDto[] Cards;
+        public HandDto(CardDto[] cards)
+        {
+            Cards = cards;
+        }
+    }
+
     public class WebSocketEventHandler
     {
         GameManager _gameManager;
@@ -49,7 +94,16 @@ namespace GolfGame.Helpers
                     // Data is the kind of action that failed.
                     UserActionError_Response(response.data);
                     break;
+                case WebSocketResponseType.GameStarted:
+                    // Data is the kind of action that failed.
+                    StartGame_Response();
+                    break;
             }
+        }
+
+        private void StartGame_Response()
+        {
+            _parent.StartGameSuccess();
         }
 
         private void Handshake_Response(string responseUser)

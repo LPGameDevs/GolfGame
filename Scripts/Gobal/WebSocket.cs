@@ -1,5 +1,7 @@
 using System;
 using Godot;
+using Godot.Collections;
+using GolfGame.Helpers;
 using Newtonsoft.Json;
 
 namespace GolfGame
@@ -8,7 +10,8 @@ namespace GolfGame
     {
         HostNewGame = 1,
         JoinGame = 2,
-        LeaveGame = 3
+        LeaveGame = 3,
+        StartGame = 4,
     }
 
     public enum WebSocketResponseType
@@ -21,7 +24,8 @@ namespace GolfGame
         CardPicked = 6,
         CardPlaced = 7,
         PlayerKnocked = 8,
-        InteractionError = 9
+        InteractionError = 9,
+        GameStarted = 10,
     }
 
     public class WebSocket : Node
@@ -227,6 +231,7 @@ namespace GolfGame
             public string[] users;
             public string data;
             public string room;
+            public GameState game;
             public WebSocketResponseType responseType;
         }
 
@@ -263,6 +268,11 @@ namespace GolfGame
                         room = data;
                         break;
 
+                    case WebSocketRequestType.StartGame:
+                        action = "start-game";
+                        room = data;
+                        break;
+
                     default:
                         action = "notify";
                         break;
@@ -277,6 +287,16 @@ namespace GolfGame
         {
             OnConnected?.Invoke();
         }
+    }
+
+    public class GameState
+    {
+        public string id;
+        public string[] users;
+        public CardDto[] deck;
+        public CardDto[] discard;
+        public Dictionary<string, CardDto[]> hands;
+        public int turn;
     }
 
     public interface IWebSockectRequestData

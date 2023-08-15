@@ -48,6 +48,14 @@ namespace GolfGame
             _requestHandler.LeaveGame(code);
         }
 
+        private void StartNewGame()
+        {
+            // Webhook send new game request.
+            LoadingStart();
+            string code = _gameManager.CurrentRoom;
+            _requestHandler.StartGame(code);
+        }
+
         #endregion
 
         #region RequestResponses
@@ -174,7 +182,6 @@ namespace GolfGame
         public void _OnButtonDown_Join_Start()
         {
             JoinHostingPanel();
-            GD.Print("Join game.");
         }
 
         public void _OnButtonDown_Join_Back()
@@ -185,6 +192,7 @@ namespace GolfGame
         public void _OnButtonDown_Host_Start()
         {
             GD.Print("Start game.");
+            StartNewGame();
         }
 
         public void _OnButtonDown_Host_Back()
@@ -253,5 +261,10 @@ namespace GolfGame
 
         #endregion
 
+        public void StartGameSuccess()
+        {
+            _gameManager.StartNewGame();
+            GetTree().ChangeScene("res://Scenes/Game.tscn");
+        }
     }
 }
