@@ -22,19 +22,19 @@ namespace GolfGame
             throw new PlayerNotFoundException();
         }
 
-        private void OnFetchPlayers(List<GameCore.Players.Player> playerList)
+        private void PlayersRefreshed(List<GameCore.Players.Player> playerList)
         {
             _players = playerList;
         }
 
         public override void _EnterTree()
         {
-            PlayerManager.OnFetchPlayers += OnFetchPlayers;
+            PlayerManager.OnPlayersRefreshed += PlayersRefreshed;
         }
 
         public override void _ExitTree()
         {
-            PlayerManager.OnFetchPlayers -= OnFetchPlayers;
+            PlayerManager.OnPlayersRefreshed -= PlayersRefreshed;
         }
     }
 }

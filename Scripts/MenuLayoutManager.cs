@@ -10,8 +10,8 @@ namespace GolfGame
         GameManager _gameManager;
         WebSocket _webSocket;
 
-        WebSocketEventHandler _eventHandler;
-        WebSocketRequestHandler _requestHandler;
+        WebSocketMenuEventHandler _menuEventHandler;
+        WebSocketMenuRequestHandler _menuRequestHandler;
 
         private Control _startButtons;
         private Control _friendsButtons;
@@ -32,21 +32,21 @@ namespace GolfGame
         {
             // Webhook send new game request.
             LoadingStart();
-            _requestHandler.HostGame();
+            _menuRequestHandler.HostGame();
         }
 
         private void JoinHostGame()
         {
             LoadingStart();
             var code = _enterCodeInput.Text;
-            _requestHandler.JoinGame(code);
+            _menuRequestHandler.JoinGame(code);
         }
 
         private void LeaveHostGame()
         {
             LoadingStart();
             string code = _gameManager.CurrentRoom;
-            _requestHandler.LeaveGame(code);
+            _menuRequestHandler.LeaveGame(code);
         }
 
         private void StartNewGame()
@@ -54,7 +54,7 @@ namespace GolfGame
             // Webhook send new game request.
             LoadingStart();
             string code = _gameManager.CurrentRoom;
-            _requestHandler.StartGame(code);
+            _menuRequestHandler.StartGame(code);
         }
 
         #endregion
@@ -209,7 +209,7 @@ namespace GolfGame
             // This is a sticky plaster solution to a problem that should be solved elsewhere. Disable during
             // development to catch bugs in the websocket response handler.
             // if (!_requestInProgress) return;
-            _eventHandler.HandleResponse(response);
+            _menuEventHandler.HandleResponse(response);
         }
 
         private void HandleRequestTimeout(float delta)
@@ -241,8 +241,8 @@ namespace GolfGame
             _playersJoinedTemplate = GetNode<Label>("Hosting/_PlayersJoined/_PlayerTemplate");
             CallDeferred(nameof(ShowHomePanel));
 
-            _eventHandler = new WebSocketEventHandler(this, _gameManager, _loadingManager, _webSocket);
-            _requestHandler = new WebSocketRequestHandler(this, _gameManager, _loadingManager, _webSocket);
+            _menuEventHandler = new WebSocketMenuEventHandler(this, _gameManager, _webSocket);
+            _menuRequestHandler = new WebSocketMenuRequestHandler(_gameManager, _webSocket);
         }
 
         public override void _Process(float delta)

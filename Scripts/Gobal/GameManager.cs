@@ -3,6 +3,7 @@ using GameCore;
 using GameCore.Players;
 using GameCore.States;
 using Godot;
+using GolfGame.Helpers;
 
 namespace GolfGame
 {
@@ -10,6 +11,11 @@ namespace GolfGame
     {
         GameCore.GameManager _coreGameManager = null;
         TurnManager _turnManager = null;
+
+        WebSocket _webSocket;
+
+        WebSocketGameRequestHandler _requestHandler;
+        WebSocketGameEventHandler _eventHandler;
 
         private GameState _gameState;
 
@@ -30,23 +36,33 @@ namespace GolfGame
         {
             if (_coreGameManager.DrawCard(DeckType.Discard))
             {
+                _requestHandler.DrawCardDiscard(_gameState.id);
                 return;
             }
 
-            _coreGameManager.DiscardCard();
+            if (_coreGameManager.DiscardCard())
+            {
+                _requestHandler.DiscardHandCard(_gameState.id);
+                return;
+            }
         }
 
         private void ClickedDrawDeck()
         {
-            if (!_coreGameManager.DrawCard(DeckType.Draw))
+            if (_coreGameManager.DrawCard(DeckType.Draw))
             {
+                _requestHandler.DrawCardDeck(_gameState.id);
                 return;
             }
         }
 
-        public void PlaceCard(GameCore.Card card)
+        public void PlaceCard(GameCore.Cards.Card card)
         {
-            _coreGameManager.PlaceCard(card);
+            if (_coreGameManager.PlaceCard(card))
+            {
+                _requestHandler.PlaceHandCard(_gameState.id, card.Index);
+                return;
+            }
         }
 
         public CardDto GetHoldCard()
@@ -76,12 +92,23 @@ namespace GolfGame
             GD.Print("Continue button pressed.");
         }
 
+        private void EvaluateWebsocketResponses(WebSocket.WebSocketResponse response)
+        {
+            _eventHandler.HandleResponse(response);
+        }
+
+        public override void _Ready()
+        {
+            _webSocket = GetNode<WebSocket>("/root/WebSocket");
+            _requestHandler = new WebSocketGameRequestHandler(this, _webSocket);
+            _eventHandler = new WebSocketGameEventHandler(this, _webSocket);
+        }
+
         public override void _EnterTree()
         {
             _turnManager = TurnManager.Instance;
             _coreGameManager = GameCore.GameManager.Instance;
 
-            _coreGameManager.StartListening();
             _turnManager.StartListening();
 
             if (_debug)
@@ -90,15 +117,14 @@ namespace GolfGame
                 TurnManager.OnTransitionPlayerTurn += LogPlayerTransition;
             }
 
-            PlayerManager.OnFetchPlayers += FetchPlayers;
             Buttons.OnContinueButtonPressed += ButtonContinue;
             Deck.OnDeckClicked += ClickedDrawDeck;
             Discard.OnDiscardClicked += ClickedDiscardDeck;
+            WebSocket.OnResponseReceived += EvaluateWebsocketResponses;
         }
 
         public override void _ExitTree()
         {
-            _coreGameManager.StopListening();
             _coreGameManager = null;
 
             _turnManager.StopListening();
@@ -110,10 +136,10 @@ namespace GolfGame
                 TurnManager.OnTransitionPlayerTurn -= LogPlayerTransition;
             }
 
-            PlayerManager.OnFetchPlayers -= FetchPlayers;
             Buttons.OnContinueButtonPressed -= ButtonContinue;
             Deck.OnDeckClicked -= ClickedDrawDeck;
             Discard.OnDiscardClicked -= ClickedDiscardDeck;
+            WebSocket.OnResponseReceived -= EvaluateWebsocketResponses;
         }
 
         private static void LogStateTransition(string arg1, string arg2)
@@ -124,18 +150,6 @@ namespace GolfGame
         private static void LogPlayerTransition(PlayerId arg1, PlayerId arg2)
         {
             GD.Print($"Moving turn from {arg1.ToString()} to {arg2.ToString()}");
-        }
-
-        private void FetchPlayers(List<GameCore.Players.Player> players)
-        {
-            int i = 1;
-            foreach (var user in _gameState.users)
-            {
-                IPlayerBrain brain = new AIBrain();
-                players.Add(new GameCore.Players.Player(brain, (PlayerId) i));
-
-                i++;
-            }
         }
 
         #region RoomStuff
@@ -154,5 +168,43 @@ namespace GolfGame
         }
 
         #endregion
+
+        public void ConfirmUserAction(string uid, WebSocketResponseType webSocketResponseType, GameState gameState)
+        {
+            UpdateGameState(gameState);
+            if (uid != CurrentUser)
+            {
+                UpdateGameFromState(gameState);
+                return;
+            }
+
+            switch (webSocketResponseType)
+            {
+                case WebSocketResponseType.CardDrawn:
+                    PlayerEvents.DrawCard();
+                    break;
+                case WebSocketResponseType.CardPlaced:
+                    PlayerEvents.DiscardCard();
+                    break;
+                case WebSocketResponseType.TurnCompleted:
+                    PlayerEvents.CompleteTurn();
+                    break;
+                case WebSocketResponseType.PlayerKnocked:
+                    PlayerEvents.CallLastRound();
+                    break;
+            }
+        }
+
+        private void UpdateGameState(GameState gameState)
+        {
+            _gameState.discard = gameState.discard;
+            _gameState.deck = gameState.deck;
+            _gameState.hands = gameState.hands;
+        }
+
+        private void UpdateGameFromState(GameState gameState)
+        {
+            _coreGameManager.UpdateGameFromState(gameState);
+        }
     }
 }

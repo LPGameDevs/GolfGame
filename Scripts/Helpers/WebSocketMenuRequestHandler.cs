@@ -1,26 +1,14 @@
-using Godot;
-
 namespace GolfGame.Helpers
 {
-    public class WebSocketRequestHandler
+    public class WebSocketMenuRequestHandler
     {
         GameManager _gameManager;
-        LoadingManager _loadingManager;
-        MenuLayoutManager _parent;
         WebSocket _webSocket;
 
-        public WebSocketRequestHandler(MenuLayoutManager parent, GameManager gameManager, LoadingManager loadingManager, WebSocket webSocket)
+        public WebSocketMenuRequestHandler(GameManager gameManager, WebSocket webSocket)
         {
-            // @todo Remove the parent dependency.
-            _parent = parent;
             _gameManager = gameManager;
-            _loadingManager = loadingManager;
             _webSocket = webSocket;
-        }
-
-        public void HandleRequest(WebSocketRequestType requestType, string data = "")
-        {
-           _webSocket.MakeRequest(requestType, data);
         }
 
         public void HostGame()
@@ -42,7 +30,5 @@ namespace GolfGame.Helpers
         {
             _webSocket.MakeRequest(WebSocketRequestType.LeaveGame, code);
         }
-
-
     }
 }

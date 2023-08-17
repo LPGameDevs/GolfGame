@@ -8,7 +8,7 @@ namespace GolfGame
     {
         private GameManager _gm;
 
-        private GameCore.Card _card;
+        private GameCore.Cards.Card _card;
 
         [Export] public Color SelectedColor { get; set; } = new Color(1, 0, 0);
 
@@ -101,7 +101,7 @@ namespace GolfGame
             ViewCards.OnExit -= OnExitViewCards;
         }
 
-        public void SetCard(GameCore.Card card)
+        public void SetCard(GameCore.Cards.Card card)
         {
             _card = card;
             UpdateNumber();

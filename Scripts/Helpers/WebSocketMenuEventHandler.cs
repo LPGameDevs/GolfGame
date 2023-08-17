@@ -3,23 +3,17 @@ using Godot;
 
 namespace GolfGame.Helpers
 {
-
-
-
-
-    public class WebSocketEventHandler
+    public class WebSocketMenuEventHandler
     {
         GameManager _gameManager;
-        LoadingManager _loadingManager;
         MenuLayoutManager _parent;
         WebSocket _webSocket;
 
-        public WebSocketEventHandler(MenuLayoutManager parent, GameManager gameManager, LoadingManager loadingManager, WebSocket webSocket)
+        public WebSocketMenuEventHandler(MenuLayoutManager parent, GameManager gameManager, WebSocket webSocket)
         {
             // @todo Remove the parent dependency.
             _parent = parent;
             _gameManager = gameManager;
-            _loadingManager = loadingManager;
             _webSocket = webSocket;
         }
 
@@ -44,16 +38,6 @@ namespace GolfGame.Helpers
                 case WebSocketResponseType.UserDisconnected:
                     // @todo update friends list if relevant.
                     break;
-                case WebSocketResponseType.CardPicked:
-                case WebSocketResponseType.CardPlaced:
-                case WebSocketResponseType.PlayerKnocked:
-                    // Data is the user performing the action.
-                    UserActionConfirmed_Response(response.responseType, response.user);
-                    break;
-                case WebSocketResponseType.InteractionError:
-                    // Data is the kind of action that failed.
-                    UserActionError_Response(response.data);
-                    break;
                 case WebSocketResponseType.GameStarted:
                     // Data is the kind of action that failed.
                     StartGame_Response(response.game);
@@ -70,18 +54,6 @@ namespace GolfGame.Helpers
         {
             _gameManager.CurrentUser = responseUser;
             _webSocket.HandshakeSuccess();
-        }
-
-        private void UserActionError_Response(string interaction)
-        {
-            // @todo Tell user that requested action failed.
-            throw new System.NotImplementedException();
-        }
-
-        private void UserActionConfirmed_Response(WebSocketResponseType webSocketResponseType, string uid)
-        {
-            // @todo Tell user that requested action succeeded.
-            throw new System.NotImplementedException();
         }
 
         private void JoinGame_Response(string code = null, string uid = null, string[] users = null)
@@ -108,7 +80,7 @@ namespace GolfGame.Helpers
 
             if (uid == _gameManager.CurrentUser)
             {
-               ThisUserJoined();
+                ThisUserJoined();
             }
             else
             {
@@ -118,16 +90,15 @@ namespace GolfGame.Helpers
 
             void ThisUserJoined()
             {
-
                 _gameManager.JoinRoom(code);
                 _parent.JoinGameSuccess(code, users);
             }
+
             void OtherUserJoined()
             {
                 _parent.JoinGameSuccess(code, users);
             }
         }
-
 
         private void LeaveGame_Response(string room = null, string userLeft = null, string[] users = null)
         {
@@ -144,8 +115,6 @@ namespace GolfGame.Helpers
             {
                 _parent.JoinGameSuccess(room, users);
             }
-
         }
-
     }
 }

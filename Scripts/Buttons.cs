@@ -1,4 +1,5 @@
 using System;
+using GameCore;
 using Godot;
 
 namespace GolfGame
@@ -20,14 +21,24 @@ namespace GolfGame
             _continueButton = GetNode<Button>("ContinueButton");
         }
 
-        public override void _PhysicsProcess(float delta)
+        private void UpdateCurrentState(string _, string state)
         {
-            _currentState.Text = _gm.GetCurrentState();
+            _currentState.Text = state;
         }
 
         public void _OnContinueButtonDown()
         {
             OnContinueButtonPressed?.Invoke();
+        }
+
+        public override void _EnterTree()
+        {
+            StateMachine.OnTransitionState += UpdateCurrentState;
+        }
+
+        public override void _ExitTree()
+        {
+            StateMachine.OnTransitionState -= UpdateCurrentState;
         }
     }
 }

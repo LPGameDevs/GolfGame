@@ -56,7 +56,7 @@ namespace GolfGame
             }
         }
 
-        public GameCore.Card[] GetCards()
+        public GameCore.Cards.Card[] GetCards()
         {
             return _player.Cards;
         }

@@ -11,6 +11,11 @@ namespace GolfGame
         JoinGame = 2,
         LeaveGame = 3,
         StartGame = 4,
+
+        DrawCardDeck = 10,
+        DrawCardDiscard = 11,
+        PlaceHandCard = 12,
+        DiscardHandCard = 13,
     }
 
     public enum WebSocketResponseType
@@ -20,16 +25,21 @@ namespace GolfGame
         UserDisconnected = 2,
         UserJoinedRoom = 3,
         UserLeftRoom = 4,
-        CardPicked = 6,
-        CardPlaced = 7,
-        PlayerKnocked = 8,
-        InteractionError = 9,
         GameStarted = 10,
+        CardDrawn = 11,
+        CardPlaced = 12,
+        TurnCompleted = 13,
+        PlayerKnocked = 14,
+        InteractionError = 20,
     }
 
     public class WebSocket : Node
     {
         private const bool _secureConnection = false;
+
+        // @todo Move this into global and persistent storage.
+        private string _userId = null;
+        private bool _userIdStorage = false;
 
         public static event Action OnConnected;
         public static event Action OnDisconnected;
@@ -67,7 +77,12 @@ namespace GolfGame
                 supportedProtocols = new string[1] {"some-protocol"};
             }
 
-            Error error = _webSocketClient.ConnectToUrl(WebSocketUrl, supportedProtocols);
+            string[] headers = new[]
+            {
+                "UserId: " + GetUserId(),
+            };
+
+            Error error = _webSocketClient.ConnectToUrl(WebSocketUrl, supportedProtocols, false, headers);
 
             if (error != Error.Ok)
             {
@@ -80,6 +95,37 @@ namespace GolfGame
                 _webSocketClient.GetPeer(1).SetWriteMode(WebSocketPeer.WriteMode.Text);
                 GD.Print("Starting socket connetion to " + WebSocketUrl);
             }
+        }
+
+        private string GetUserId()
+        {
+            if (_userId == null)
+            {
+                if (_userIdStorage)
+                {
+                    string json;
+                    // read user id from json file
+                    if (System.IO.File.Exists("user.json"))
+                    {
+                        json = System.IO.File.ReadAllText("user.json");
+                        _userId = JsonConvert.DeserializeObject<string>(json);
+                    }
+                    else
+                    {
+                        _userId = Guid.NewGuid().ToString();
+
+                        // write user id to json file
+                        json = JsonConvert.SerializeObject(_userId);
+                        System.IO.File.WriteAllText("user.json", json);
+                    }
+                }
+                else
+                {
+                    _userId = Guid.NewGuid().ToString();
+                }
+            }
+
+            return _userId;
         }
 
         private void HandlePolling()
@@ -122,7 +168,6 @@ namespace GolfGame
 
         public void SendMessage(RequestData requestData)
         {
-
             if (!_isConnected)
             {
                 return;
@@ -239,6 +284,7 @@ namespace GolfGame
         {
             public string action = "notify";
             public string room;
+            public string index;
             public string person;
             public WebSocketRequestType RequestType;
 
@@ -267,10 +313,32 @@ namespace GolfGame
                         room = data;
                         break;
 
+
                     case WebSocketRequestType.StartGame:
                         action = "start-game";
                         room = data;
                         break;
+
+
+                    case WebSocketRequestType.DrawCardDeck:
+                        action = "draw-card-deck";
+                        room = data;
+                        break;
+                    case WebSocketRequestType.DrawCardDiscard:
+                        action = "draw-card-discard";
+                        room = data;
+                        break;
+                    case WebSocketRequestType.PlaceHandCard:
+                        var results = data.Split(':');
+                        room = results[0];
+                        index = results[1];
+                        action = "place-hand-card";
+                        break;
+                    case WebSocketRequestType.DiscardHandCard:
+                        action = "discard-hand-card";
+                        room = data;
+                        break;
+
 
                     default:
                         action = "notify";
@@ -287,7 +355,6 @@ namespace GolfGame
             OnConnected?.Invoke();
         }
     }
-
 
 
     public interface IWebSockectRequestData

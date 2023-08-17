@@ -1,5 +1,6 @@
 using System;
 using GameCore;
+using GameCore.Exceptions;
 using Godot;
 
 public class Discard : Control
@@ -49,10 +50,12 @@ public class Discard : Control
     public override void _EnterTree()
     {
         DeckManager.OnCardDiscarded += UpdateNumber;
+        DeckManager.OnRefresh += UpdateNumber;
     }
 
     public override void _ExitTree()
     {
         DeckManager.OnCardDiscarded -= UpdateNumber;
+        DeckManager.OnRefresh -= UpdateNumber;
     }
 }
