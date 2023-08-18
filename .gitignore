@@ -25,6 +25,9 @@ build/
 # Godot 4+ specific ignores
 .godot/
 
+# Keys
+keys
+
 # IDE stuff
 Tests/Meta/
 .idea/

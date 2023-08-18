@@ -50,6 +50,17 @@ macosx:
     paths:
       - build/macosx
 
+android:
+  stage: export
+  script:
+    - mkdir -v -p build/android
+    - godot -v --export "Android" ./build/android/$EXPORT_NAME.apk
+  artifacts:
+    name: $EXPORT_NAME-$CI_JOB_NAME
+    paths:
+      - build/android
+
+
 itch:
   stage: deploy
   dependencies:
@@ -57,10 +68,12 @@ itch:
     - linux
     - macosx
     - windows
+    - android
   script:
     - butler push build/web $ITCHIO_NAME:web-stable
     - butler push build/linux $ITCHIO_NAME:linux-stable
     - butler push build/macosx $ITCHIO_NAME:macosx-stable
     - butler push build/windows $ITCHIO_NAME:windows-stable
+    - butler push build/android $ITCHIO_NAME:android-stable
   only:
     - main

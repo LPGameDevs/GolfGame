@@ -39,7 +39,8 @@ namespace GolfGame
 
         // @todo Move this into global and persistent storage.
         private string _userId = null;
-        private bool _userIdStorage = false;
+        private bool _userIdStorage = true;
+        private const string _userIdFile = "user://user.json";
 
         public static event Action OnConnected;
         public static event Action OnDisconnected;
@@ -105,19 +106,21 @@ namespace GolfGame
                 if (_userIdStorage)
                 {
                     string json;
-                    // read user id from json file
-                    if (System.IO.File.Exists("user.json"))
+
+                    // open file in godot user resource path.
+                    var file = new File();
+                    if (file.FileExists(_userIdFile))
                     {
-                        json = System.IO.File.ReadAllText("user.json");
-                        _userId = JsonConvert.DeserializeObject<string>(json);
+                        file.Open(_userIdFile, File.ModeFlags.Read);
+                        json = file.GetAsText();
+                        file.Close();
                     }
                     else
                     {
-                        _userId = Guid.NewGuid().ToString();
-
-                        // write user id to json file
-                        json = JsonConvert.SerializeObject(_userId);
-                        System.IO.File.WriteAllText("user.json", json);
+                        json = JsonConvert.SerializeObject(Guid.NewGuid().ToString());
+                        file.Open(_userIdFile, File.ModeFlags.Write);
+                        file.StoreString(json);
+                        file.Close();
                     }
                 }
                 else
