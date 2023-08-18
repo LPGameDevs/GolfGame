@@ -56,7 +56,11 @@ namespace GolfGame
         private float _reconnectionTimer = 0;
 
         // private const string WebSocketUrl = "wss://5kh2nhf5ql.execute-api.eu-north-1.amazonaws.com/production";
+#if ENV_PROD
         private const string WebSocketUrl = "ws://localhost:1337";
+#else
+        private const string WebSocketUrl = "ws://server.lpgam.es:1337";
+#endif
 
         public bool IsClientConnected => _isConnected;
 

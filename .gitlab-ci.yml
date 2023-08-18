@@ -21,6 +21,7 @@ web:
 windows:
   stage: export
   script:
+    - sed -i "s|DEPLOY_ENVIRONMENT|ENV_PROD_SUCCESS|g" GolfGame.csproj
     - mkdir -v -p build/windows
     - godot -v --export "Windows Desktop" ./build/windows/$EXPORT_NAME.exe
   artifacts:

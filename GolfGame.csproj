@@ -1,0 +1,19 @@
+<Project Sdk="Godot.NET.Sdk/3.3.0">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants>ENV_PROD</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants>DEPLOY_ENVIRONMENT</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GameCore">
+      <HintPath>Libraries\net472\GameCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>

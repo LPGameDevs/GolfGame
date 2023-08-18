@@ -102,6 +102,16 @@ namespace GolfGame
             _webSocket = GetNode<WebSocket>("/root/WebSocket");
             _requestHandler = new WebSocketGameRequestHandler(this, _webSocket);
             _eventHandler = new WebSocketGameEventHandler(this, _webSocket);
+
+            GD.Print("GameManager ready.");
+
+            // @todo This is just for testing.
+#if DEPLOY_ENVIRONMENT
+            GD.Print("DEPLOY_ENVIRONMENT");
+#endif
+#if ENV_PROD_SUCCESS
+            GD.Print("ENV_PROD_SUCCESS");
+#endif
         }
 
         public override void _EnterTree()

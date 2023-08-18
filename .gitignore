@@ -14,8 +14,7 @@
 .mono/
 .mono/temp/
 data_*/
-*.csproj
-*.sln
+
 
 
 # End of https://www.toptal.com/developers/gitignore/api/godot

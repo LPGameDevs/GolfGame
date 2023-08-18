@@ -52,6 +52,12 @@ namespace GolfGame
             }
         }
 
+        private void Refresh()
+        {
+            // @todo: Get the holding card from state and update showing it.
+            UpdateNumber();
+        }
+
         public override void _EnterTree()
         {
             GameCore.Players.Player.OnPlayerHoldCard += UpdateHoldCard;
