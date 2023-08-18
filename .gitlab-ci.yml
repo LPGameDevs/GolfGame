@@ -3,56 +3,60 @@ image: barichello/godot-ci:mono-3.5.2
 variables:
   EXPORT_NAME: golf-game
   ITCHIO_NAME: yanniboi/golf-game
+  SECURE_FILES_DOWNLOAD_PATH: './keys/android/'
 
 stages:
   - export
   - deploy
 
-web:
-  stage: export
-  script:
-    - mkdir -v -p build/web
-    - godot -v --export "HTML5" ./build/web/index.html
-  artifacts:
-    name: $EXPORT_NAME-$CI_JOB_NAME
-    paths:
-      - build/web
-
-windows:
-  stage: export
-  script:
-    - sed -i "s|DEPLOY_ENVIRONMENT|ENV_PROD_SUCCESS|g" GolfGame.csproj
-    - mkdir -v -p build/windows
-    - godot -v --export "Windows Desktop" ./build/windows/$EXPORT_NAME.exe
-  artifacts:
-    name: $EXPORT_NAME-$CI_JOB_NAME
-    paths:
-      - build/windows
-
-linux:
-  stage: export
-  script:
-    - mkdir -v -p build/linux
-    - godot -v --export "Linux/X11" ./build/linux/$EXPORT_NAME.x86_64
-  artifacts:
-    name: $EXPORT_NAME-$CI_JOB_NAME
-    paths:
-      - build/linux
-
-macosx:
-  stage: export
-  script:
-    - mkdir -v -p build/macosx
-    - godot -v --export "Mac OSX" ./build/macosx/$EXPORT_NAME.zip
-    - (cd ./build/macosx && unzip -a $EXPORT_NAME.zip && rm $EXPORT_NAME.zip)
-  artifacts:
-    name: $EXPORT_NAME-$CI_JOB_NAME
-    paths:
-      - build/macosx
+#web:
+#  stage: export
+#  script:
+#    - mkdir -v -p build/web
+#    - godot -v --export "HTML5" ./build/web/index.html
+#  artifacts:
+#    name: $EXPORT_NAME-$CI_JOB_NAME
+#    paths:
+#      - build/web
+#
+#windows:
+#  stage: export
+#  script:
+#    - sed -i "s|DEPLOY_ENVIRONMENT|ENV_PROD_SUCCESS|g" GolfGame.csproj
+#    - mkdir -v -p build/windows
+#    - godot -v --export "Windows Desktop" ./build/windows/$EXPORT_NAME.exe
+#  artifacts:
+#    name: $EXPORT_NAME-$CI_JOB_NAME
+#    paths:
+#      - build/windows
+#
+#linux:
+#  stage: export
+#  script:
+#    - mkdir -v -p build/linux
+#    - godot -v --export "Linux/X11" ./build/linux/$EXPORT_NAME.x86_64
+#  artifacts:
+#    name: $EXPORT_NAME-$CI_JOB_NAME
+#    paths:
+#      - build/linux
+#
+#macosx:
+#  stage: export
+#  script:
+#    - mkdir -v -p build/macosx
+#    - godot -v --export "Mac OSX" ./build/macosx/$EXPORT_NAME.zip
+#    - (cd ./build/macosx && unzip -a $EXPORT_NAME.zip && rm $EXPORT_NAME.zip)
+#  artifacts:
+#    name: $EXPORT_NAME-$CI_JOB_NAME
+#    paths:
+#      - build/macosx
 
 android:
+  image: cuong0993/godot-mono-docker:v3.5.2
   stage: export
   script:
+    - mkdir -v -p SECURE_FILES_DOWNLOAD_PATH
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - mkdir -v -p build/android
     - godot -v --export "Android" ./build/android/$EXPORT_NAME.apk
   artifacts:
@@ -61,19 +65,19 @@ android:
       - build/android
 
 
-itch:
-  stage: deploy
-  dependencies:
-    - web
-    - linux
-    - macosx
-    - windows
-    - android
-  script:
-    - butler push build/web $ITCHIO_NAME:web-stable
-    - butler push build/linux $ITCHIO_NAME:linux-stable
-    - butler push build/macosx $ITCHIO_NAME:macosx-stable
-    - butler push build/windows $ITCHIO_NAME:windows-stable
-    - butler push build/android $ITCHIO_NAME:android-stable
-  only:
-    - main
+#itch:
+#  stage: deploy
+#  dependencies:
+#    - web
+#    - linux
+#    - macosx
+#    - windows
+#    - android
+#  script:
+#    - butler push build/web $ITCHIO_NAME:web-stable
+#    - butler push build/linux $ITCHIO_NAME:linux-stable
+#    - butler push build/macosx $ITCHIO_NAME:macosx-stable
+#    - butler push build/windows $ITCHIO_NAME:windows-stable
+#    - butler push build/android $ITCHIO_NAME:android-stable
+#  only:
+#    - main
