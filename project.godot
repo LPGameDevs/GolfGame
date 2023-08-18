@@ -21,6 +21,12 @@ ScoreManager="*res://Scripts/Gobal/ScoreManager.cs"
 LoadingManager="*res://Scripts/Gobal/LoadingManager.cs"
 WebSocket="*res://Scripts/Gobal/WebSocket.cs"
 
+[global]
+
+remote_server_url="wss://localhost:1337"
+remote_server_url.debug="wss://localhost:1337"
+remote_server_url.release="wss://server.lpgam.es:1337"
+
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true

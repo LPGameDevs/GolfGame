@@ -56,11 +56,7 @@ namespace GolfGame
         private float _reconnectionTimer = 0;
 
         // private const string WebSocketUrl = "wss://5kh2nhf5ql.execute-api.eu-north-1.amazonaws.com/production";
-#if ENV_PROD
-        private const string WebSocketUrl = "ws://localhost:1337";
-#else
-        private const string WebSocketUrl = "ws://server.lpgam.es:1337";
-#endif
+        private string _webSocketUrl;
 
         public bool IsClientConnected => _isConnected;
 
@@ -68,6 +64,7 @@ namespace GolfGame
         {
             // Connect signal events.
             _webSocketClient = new WebSocketClient();
+            _webSocketClient.VerifySsl = false;
             _webSocketClient.Connect("connection_established", this, nameof(OnConnectionEstablished));
             _webSocketClient.Connect("data_received", this, nameof(OnDataReceived));
             _webSocketClient.Connect("server_close_request", this, nameof(OnServerCloseRequest));
@@ -86,18 +83,18 @@ namespace GolfGame
                 "UserId: " + GetUserId(),
             };
 
-            Error error = _webSocketClient.ConnectToUrl(WebSocketUrl, supportedProtocols, false, headers);
+            Error error = _webSocketClient.ConnectToUrl(_webSocketUrl, supportedProtocols, false, headers);
 
             if (error != Error.Ok)
             {
                 _webSocketClient.GetPeer(1).Close();
-                GD.Print("Error connect to " + WebSocketUrl);
+                GD.Print("Error connect to " + _webSocketUrl);
             }
             else
             {
                 // We cannot handle binary data exchange.
                 _webSocketClient.GetPeer(1).SetWriteMode(WebSocketPeer.WriteMode.Text);
-                GD.Print("Starting socket connetion to " + WebSocketUrl);
+                GD.Print("Starting socket connetion to " + _webSocketUrl);
             }
         }
 
@@ -241,6 +238,7 @@ namespace GolfGame
 
         public override void _Ready()
         {
+            _webSocketUrl = ProjectSettings.GetSetting("global/remote_server_url").ToString();
             ConnectToServer();
         }
 
