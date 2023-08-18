@@ -2,12 +2,6 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup>
-    <DefineConstants>ENV_PROD</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DefineConstants>DEPLOY_ENVIRONMENT</DefineConstants>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="GameCore">
       <HintPath>Libraries\net472\GameCore.dll</HintPath>

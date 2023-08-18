@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using GameCore;
-using GameCore.Players;
 using GameCore.States;
 using Godot;
 using GolfGame.Helpers;

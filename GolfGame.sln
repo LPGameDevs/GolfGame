@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GolfGame", "GolfGame.csproj", "{045FF02D-5783-41AF-AEE1-D03363477E73}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GolfGame", "GolfGame.csproj", "{CE238DED-7A59-4FA5-A518-DEEC4297A31B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,11 +9,11 @@ Global
 	ExportRelease|Any CPU = ExportRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{045FF02D-5783-41AF-AEE1-D03363477E73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{045FF02D-5783-41AF-AEE1-D03363477E73}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{045FF02D-5783-41AF-AEE1-D03363477E73}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
-		{045FF02D-5783-41AF-AEE1-D03363477E73}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
-		{045FF02D-5783-41AF-AEE1-D03363477E73}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
-		{045FF02D-5783-41AF-AEE1-D03363477E73}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{CE238DED-7A59-4FA5-A518-DEEC4297A31B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE238DED-7A59-4FA5-A518-DEEC4297A31B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE238DED-7A59-4FA5-A518-DEEC4297A31B}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{CE238DED-7A59-4FA5-A518-DEEC4297A31B}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{CE238DED-7A59-4FA5-A518-DEEC4297A31B}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{CE238DED-7A59-4FA5-A518-DEEC4297A31B}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
 	EndGlobalSection
 EndGlobal
