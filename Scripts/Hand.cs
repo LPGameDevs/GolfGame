@@ -16,17 +16,11 @@ namespace GolfGame
             _gm = GetNode<GameManager>("/root/GameManager");
 
             _number = GetNode<Label>("NinePatchRect/MarginContainer/Number");
-            UpdateNumber();
+            UpdateHoldCard(false);
         }
 
         public void UpdateNumber()
         {
-            if (_number == null)
-            {
-                UpdateHoldCard(false);
-                return;
-            }
-
             try
             {
                 CardDto holdCard = _gm.GetHoldCard();
@@ -37,7 +31,9 @@ namespace GolfGame
                 }
             }
             catch (PlayerNotFoundException e)
-            { }
+            {
+                GD.PrintErr(e.Message);
+            }
 
             // Something went wrong so just hide the number.
             UpdateHoldCard(false);
@@ -54,17 +50,18 @@ namespace GolfGame
             {
                 Visible = false;
             }
-
         }
 
         public override void _EnterTree()
         {
             GameCore.Players.Player.OnPlayerHoldCard += UpdateHoldCard;
+            DeckManager.OnRefresh += Refresh;
         }
 
         public override void _ExitTree()
         {
             GameCore.Players.Player.OnPlayerHoldCard -= UpdateHoldCard;
+            DeckManager.OnRefresh -= Refresh;
         }
     }
 }
